@@ -1,0 +1,454 @@
+/* style.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 25px 0 50px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  min-height: calc(100vh - 110px);
+  display: flex;
+  flex-direction: column;
+}
+
+.main-title {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 28px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #3498db;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 30px;
+  flex: 1;
+}
+
+.archives-section {
+  flex: 0 0 54%;
+  padding: 25px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  text-align: center;
+  min-height: 650px;
+  display: flex;
+  flex-direction: column;
+}
+
+.upload-section {
+  flex: 0 0 35%;
+  padding: 25px;
+  background-color: #f0f8ff;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.section-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.archives-container {
+  overflow-y: auto;
+  max-height: 600px;
+  padding-right: 10px;
+  margin-top: 15px;
+}
+
+/* Стили для скроллбара */
+.archives-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.archives-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.archives-container::-webkit-scrollbar-thumb {
+  background: #3498db;
+  border-radius: 4px;
+}
+
+.archives-container::-webkit-scrollbar-thumb:hover {
+  background: #2980b9;
+}
+
+#archive-upload {
+  display: none;
+}
+
+.upload-button {
+  display: inline-block;
+  padding: 12px 25px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+  margin: 0 auto 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.upload-button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.form-section {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #2c3e50;
+  text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.05);
+}
+
+.form-group input {
+  width: 80%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  display: block;
+  transition: all 0.3s;
+}
+
+.submit-button {
+  padding: 12px 25px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+  margin: 20px auto 0;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.submit-button:hover {
+  background-color: #27ae60;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.archives-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  flex: 1;
+}
+
+.archive-item {
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: white;
+  border-radius: 5px;
+  border-left: 4px solid #3498db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Уменьшаем общий отступ между элементами */
+}
+
+.archive-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.archive-number {
+  font-weight: bold;
+  color: #7f8c8d;
+  min-width: 25px;
+  flex-shrink: 0;
+}
+
+.archive-name {
+  font-weight: bold;
+  color: #000000;
+  font-size: 16px;
+  flex-grow: 0; /* Меняем с 1 на 0 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 100px;
+  margin-right: 50px; /* Добавляем небольшой отступ после имени */
+}
+
+.archive-time {
+  color: #7f8c8d;
+  font-size: 14px;
+  min-width: 120px;
+  flex-shrink: 0;
+  margin-right: auto; /* Это сдвинет статус вправо */
+}
+
+.archive-status {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 12px;
+  min-width: 90px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.status-загрузка {
+  background-color: #f39c12;
+  color: white;
+}
+
+.status-обработка {
+  background-color: #3498db;
+  color: white;
+}
+
+.status-выполнено {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.no-archives {
+  color: #7f8c8d;
+  text-align: center;
+  padding: 30px;
+  font-style: italic;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-title {
+  text-align: center;
+  margin-top: 0;
+  color: #34495e;
+  font-size: 22px;
+  margin-bottom: 20px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+  position: relative;
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-title:after {
+  content: "";
+  position: absolute;
+  width: 50%;
+  height: 2px;
+  bottom: -5px;
+  left: 25%;
+  background-color: #3498db;
+}
+
+.form-title {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #3498db;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.input-effect:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+  outline: none;
+}
+
+.label-studio-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: white;
+}
+
+.archive-item {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.archive-item:hover {
+  background-color: #f0f8ff;
+}
+
+/* Label Studio Styles */
+.label-studio-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: white;
+  padding: 10px;
+}
+
+.label-studio-container {
+  height: calc(100vh - 50px);
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.back-button {
+  padding: 8px 16px;
+  margin-bottom: 10px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.back-button:hover {
+  background: #2980b9;
+}
+
+/* Archive Item Clickable */
+.archive-item.clickable {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.archive-item.clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background-color: #f0f8ff;
+}
+
+.status-готово {
+  background-color: #2ecc71;
+  color: white;
+}
+
+/* Анимационные эффекты */
+.pulse-effect:hover {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translateY(-2px) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.05);
+  }
+  100% {
+    transform: translateY(-2px) scale(1);
+  }
+}
+
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect:after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20%;
+  height: 200%;
+  opacity: 0;
+  transform: rotate(30deg);
+  background: rgba(255, 255, 255, 0.13);
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.13) 77%,
+    rgba(255, 255, 255, 0.5) 92%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.shine-effect:hover:after {
+  opacity: 1;
+  left: 130%;
+  transition-property: left, top, opacity;
+  transition-duration: 0.7s, 0.7s, 0.15s;
+  transition-timing-function: ease;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .archives-section,
+  .upload-section {
+    flex: 1 1 100%;
+  }
+
+  .archive-item {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .archive-name {
+    order: 1;
+    flex-basis: 100%;
+    text-align: left;
+  }
+
+  .archive-number {
+    order: 0;
+  }
+
+  .archive-time {
+    order: 2;
+    text-align: left;
+  }
+
+  .archive-status {
+    order: 3;
+    margin-left: auto;
+  }
+}
