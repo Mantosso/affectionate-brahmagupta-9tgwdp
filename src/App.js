@@ -1,139 +1,110 @@
-import React, { useState, useEffect } from "react";
-import "./style.css";
-import LabelStudioWrapper from "./LabelStudioWrapper";
+// App.js
+import React, { useState, useEffect } from 'react';
+import LabelStudioWrapper from './LabelStudioWrapper';
+import { getArchives, uploadArchive, getArchiveTask } from './api';
+import './style.css';
 
-function App() {
+const App = () => {
   const [archives, setArchives] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [archiveName, setArchiveName] = useState("");
-  const [formData, setFormData] = useState({
-    journalNumber: "",
-    diameter: "",
-    thickness: "",
-    brigadeCode: "",
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedArchive, setSelectedArchive] = useState(null);
+  const [task, setTask] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [metadata, setMetadata] = useState({
+    name: '',
+    description: ''
   });
-  const [currentTask, setCurrentTask] = useState(null);
-  const [showLabelStudio, setShowLabelStudio] = useState(false);
 
-  const createMockImages = (archiveId) => {
-    return Array.from({ length: 3 }, (_, i) => ({
-      id: `${archiveId}-${i}`,
-      url: `https://picsum.photos/seed/${archiveId}-${i}/800/600`,
-    }));
+  useEffect(() => {
+    fetchArchives();
+  }, []);
+
+  const fetchArchives = async () => {
+    try {
+      setLoading(true);
+      const data = await getArchives();
+      setArchives(data);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setShowForm(true);
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      await uploadArchive(file, metadata);
+      await fetchArchives(); // Refresh the list after upload
+      setMetadata({ name: '', description: '' });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
     }
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    const now = new Date();
-    const timeString = now.toLocaleTimeString();
-    const dateString = now.toLocaleDateString();
-
-    const newArchive = {
-      id: Date.now(),
-      fileName: archiveName || `Архив ${archives.length + 1}`,
-      uploadTime: `${dateString} ${timeString}`,
-      status: "Загрузка",
-      images: createMockImages(Date.now()),
-      ...formData,
-    };
-
-    setArchives([...archives, newArchive]);
-    setShowForm(false);
-    setArchiveName("");
-    setFormData({
-      journalNumber: "",
-      diameter: "",
-      thickness: "",
-      brigadeCode: "",
-    });
-
-    setTimeout(() => {
-      setArchives((prev) =>
-        prev.map((a) =>
-          a.id === newArchive.id ? { ...a, status: "Обработка" } : a
-        )
-      );
-    }, 2000);
-
-    setTimeout(() => {
-      setArchives((prev) =>
-        prev.map((a) =>
-          a.id === newArchive.id ? { ...a, status: "Готово" } : a
-        )
-      );
-    }, 4000);
+  const handleArchiveClick = async (archive) => {
+    if (archive.status !== 'выполнено') return;
+    
+    try {
+      setSelectedArchive(archive);
+      const taskData = await getArchiveTask(archive.id);
+      setTask(taskData);
+    } catch (err) {
+      setError(err.message);
+      setSelectedArchive(null);
+    }
   };
 
-  const handleInputChange = (e) => {
+  const handleExitLabelStudio = () => {
+    setSelectedArchive(null);
+    setTask(null);
+  };
+
+  const handleMetadataChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setMetadata(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleArchiveClick = (archive) => {
-    if (archive.status !== "Готово") return;
-
-    if (archive.images && archive.images.length > 0) {
-      setCurrentTask({
-        id: archive.id,
-        data: {
-          image: archive.images[0].url,
-        },
-        annotations: [],
-        predictions: [],
-      });
-      setShowLabelStudio(true);
-    }
-  };
-
-  if (showLabelStudio) {
-    return (
-      <LabelStudioWrapper
-        task={currentTask}
-        onExit={() => setShowLabelStudio(false)}
-      />
-    );
+  if (selectedArchive && task) {
+    return <LabelStudioWrapper task={task} onExit={handleExitLabelStudio} />;
   }
 
   return (
     <div className="app">
-      <h1 className="main-title">Система анализа сварных соединений</h1>
+      <h1 className="main-title">Система разметки изображений</h1>
+      
+      {error && <div className="error-message">{error}</div>}
 
       <div className="content-wrapper">
         <div className="archives-section">
+          <h2 className="section-title">Архивы для разметки</h2>
           <div className="section-content">
-            <h2 className="section-title">Загруженные ранее архивы</h2>
-            {archives.length === 0 ? (
-              <p className="no-archives">Нет загруженных архивов</p>
+            {loading ? (
+              <div className="no-archives">Загрузка...</div>
+            ) : archives.length === 0 ? (
+              <div className="no-archives">Нет доступных архивов</div>
             ) : (
               <div className="archives-container">
                 <ul className="archives-list">
                   {archives.map((archive, index) => (
-                    <li
+                    <li 
                       key={archive.id}
-                      className={`archive-item ${
-                        archive.status === "Готово" ? "clickable" : ""
-                      }`}
-                      onClick={() =>
-                        archive.status === "Готово" &&
-                        handleArchiveClick(archive)
-                      }
+                      className={`archive-item clickable ${archive.status === 'выполнено' ? '' : 'disabled'}`}
+                      onClick={() => handleArchiveClick(archive)}
                     >
-                      <span className="archive-number">{index + 1}.</span>
-                      <span className="archive-name">{archive.fileName}</span>
-                      <span className="archive-time">{archive.uploadTime}</span>
-                      <span
-                        className={`archive-status status-${archive.status.toLowerCase()}`}
-                      >
+                      <span className="archive-number">{index + 1}</span>
+                      <span className="archive-name">{archive.name}</span>
+                      <span className="archive-time">
+                        {new Date(archive.createdAt).toLocaleString()}
+                      </span>
+                      <span className={`archive-status status-${archive.status.toLowerCase()}`}>
                         {archive.status}
                       </span>
                     </li>
@@ -145,83 +116,58 @@ function App() {
         </div>
 
         <div className="upload-section">
+          <h2 className="section-title">Загрузка нового архива</h2>
           <div className="section-content">
-            <h2 className="section-title">Выберите архив</h2>
+            <label htmlFor="archive-upload" className="upload-button shine-effect">
+              {uploading ? 'Загрузка...' : 'Выбрать архив'}
+            </label>
             <input
-              type="file"
               id="archive-upload"
+              type="file"
               accept=".zip,.rar,.7z"
               onChange={handleFileUpload}
+              disabled={uploading}
             />
-            <label
-              htmlFor="archive-upload"
-              className="upload-button pulse-effect"
-            >
-              Загрузить
-            </label>
 
-            {showForm && (
-              <div className="form-section">
-                <h3 className="form-title">Информация об архиве</h3>
-                <form onSubmit={handleFormSubmit}>
-                  <div className="form-group">
-                    <label>Название архива:</label>
-                    <input
-                      type="text"
-                      value={archiveName}
-                      onChange={(e) => setArchiveName(e.target.value)}
-                      required
-                      className="input-effect"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Номер по журналу сварки:</label>
-                    <input
-                      type="text"
-                      name="journalNumber"
-                      value={formData.journalNumber}
-                      onChange={handleInputChange}
-                      required
-                      className="input-effect"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Диаметр и толщина стенки трубы (мм):</label>
-                    <input
-                      type="text"
-                      name="diameter"
-                      value={formData.diameter}
-                      onChange={handleInputChange}
-                      required
-                      className="input-effect"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Шифр бригады/клеймо сварщика:</label>
-                    <input
-                      type="text"
-                      name="brigadeCode"
-                      value={formData.brigadeCode}
-                      onChange={handleInputChange}
-                      required
-                      className="input-effect"
-                    />
-                  </div>
-
-                  <button type="submit" className="submit-button shine-effect">
-                    Сохранить архив
-                  </button>
-                </form>
+            <div className="form-section">
+              <h3 className="form-title">Метаданные архива</h3>
+              <div className="form-group">
+                <label htmlFor="name">Название архива</label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={metadata.name}
+                  onChange={handleMetadataChange}
+                  className="input-effect"
+                  placeholder="Введите название"
+                />
               </div>
-            )}
+              <div className="form-group">
+                <label htmlFor="description">Описание</label>
+                <input
+                  id="description"
+                  name="description"
+                  type="text"
+                  value={metadata.description}
+                  onChange={handleMetadataChange}
+                  className="input-effect"
+                  placeholder="Введите описание"
+                />
+              </div>
+              <button 
+                className="submit-button pulse-effect" 
+                onClick={() => document.getElementById('archive-upload').click()}
+                disabled={uploading}
+              >
+                {uploading ? 'Загрузка...' : 'Загрузить архив'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default App;
